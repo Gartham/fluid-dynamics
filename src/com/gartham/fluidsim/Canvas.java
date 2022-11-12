@@ -28,7 +28,7 @@ public class Canvas {
 		@Override
 		public String toString() {
 			return "Particle @ (" + xfrac + ", " + yfrac + ") out of (" + Integer.MAX_VALUE + ", " + Integer.MAX_VALUE
-					+ ")";
+					+ ')';
 		}
 
 	}

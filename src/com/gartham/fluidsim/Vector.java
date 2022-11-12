@@ -31,4 +31,9 @@ public class Vector {
 		return mag != 1 ? new Vector(x / mag, y / mag) : this;
 	}
 
+	@Override
+	public String toString() {
+		return "Vector <" + x + ", " + y + '>';
+	}
+
 }
