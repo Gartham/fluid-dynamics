@@ -33,8 +33,14 @@ public class FlowField {
 	 * @throws ArrayIndexOutOfBoundsException If the indices are out of bounds for
 	 *                                        this {@link FlowField}.
 	 */
-	Vector get(int x, int y) throws ArrayIndexOutOfBoundsException {
+	public Vector get(int x, int y) throws ArrayIndexOutOfBoundsException {
 		return grid[x][y];
+	}
+
+	public void set(int x, int y, Vector vec) throws ArrayIndexOutOfBoundsException, NullPointerException {
+		if (vec == null)
+			throw null;
+		grid[x][y] = vec;
 	}
 
 }
