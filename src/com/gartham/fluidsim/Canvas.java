@@ -76,14 +76,23 @@ public class Canvas implements Flowable {
 		Canvas can = new Canvas();
 		Particle particulate = can.new Particle(0xFF0000ff, 0, 0);
 
-		FlowField field = new FlowField(1000, 1000);
-		for (int i = 0; i < field.getWidth(); i++)
-			for (int j = 0; j < field.getHeight(); j++)
-				field.set(i, j, new Vector(i * 200, j * 15000));
+		FlowField field = new FlowField(8, 5);
+		field.set(4, 3, new Vector(Math.round(Math.random() * 10 - 5), Math.round(Math.random() * 10 - 5)));
+		field.set(4, 2, new Vector(Math.round(Math.random() * 10 - 5), Math.round(Math.random() * 10 - 5)));
+		field.set(3, 3, new Vector(Math.round(Math.random() * 10 - 5), Math.round(Math.random() * 10 - 5)));
+		field.set(3, 2, new Vector(Math.round(Math.random() * 10 - 5), Math.round(Math.random() * 10 - 5)));
+//		for (int i = 0; i < 2; i++)
+//			for (int j = 0; j < 2; j++)
+//				field.set(i, j, new Vector(Math.random()*3-1, Math.random()*3-1));
 
 		while (true) {
+			System.out.println(field + "\n\n\n");
 			Thread.sleep(1000);
-			particulate.flow(field);
+//			particulate.flow(field);
+			long start = System.nanoTime();
+			field.flow(50);
+			System.out.println(System.nanoTime() - start + "ns");
+
 		}
 	}
 
