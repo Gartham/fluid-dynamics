@@ -2,13 +2,54 @@ package com.gartham.fluidsim;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 public class Canvas implements Flowable {
 
 	private final Set<Particle> particles = new HashSet<>();
+
+	/**
+	 * <p>
+	 * The width and height of the canvas, used <i>only</i> for flowing particles.
+	 * The actual resolution of the particles positions is integer values, from
+	 * {@link Integer#MIN_VALUE} (left/bottom of canvas) to
+	 * {@link Integer#MAX_VALUE} (right/top of canvas), where 0,0 is right in the
+	 * middle of the canvas. Whenever flowing is done on particles, the vectors in
+	 * the flow field have normal values (like 10, or 5, not
+	 * {@link Integer#MAX_VALUE} / 12, or something), so the canvas uses a faux
+	 * width/height to scale the actual position increments of the particles.
+	 * </p>
+	 * <p>
+	 * If the width of the canvas is 11, and a pixel at the very left (at position
+	 * -5 on the canvas, but {@link Integer#MIN_VALUE} in particle-coordinates) is
+	 * moved by a vector &lt;5,0&gt;, then the particle will be moved to the
+	 * horizontal center of the canvas (at position 0 on the canvas, and position 0
+	 * in particle-coordinates). If the particle is then moved by a vector
+	 * &lt;3,0&gt;, then the particle will be at 3,0 in canvas coordinates and
+	 * {@link Integer#MAX_VALUE}/5*3,0 in pixel coordinates.
+	 * </p>
+	 * <p>
+	 * These values are used by the {@link Particle#push(Vector)} method.
+	 * </p>
+	 */
+	private int width, height;
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
 
 	public class Particle implements Flowable {
 		{
@@ -29,14 +70,13 @@ public class Canvas implements Flowable {
 
 			var vec = field.get(posx, posy);
 
-			System.out.println(vec + " APPLIED TO " + this);
 			push(vec);
 		}
 
 		public void push(Vector vec) {
 			// Relative values.
-			xfrac += vec.getX();
-			yfrac += vec.getY();
+			xfrac = (int) Math.round((double) xfrac * width + vec.getX() / width * Integer.MAX_VALUE);
+			yfrac = (int) Math.round((double) yfrac * height + vec.getY() / height * Integer.MAX_VALUE);
 		}
 
 		@Override
@@ -101,9 +141,11 @@ public class Canvas implements Flowable {
 		@SuppressWarnings("unchecked")
 		List<Particle>[][] map = (List<Particle>[][]) new List<?>[width][height];
 		for (Particle p : particles) {
-			if (map[p.xfrac / width][p.yfrac / height] == null)
-				map[p.xfrac / width][p.yfrac / height] = new ArrayList<>(1);
-			map[p.xfrac / width][p.yfrac / height].add(p);
+			int posx = (int) ((long) p.xfrac * width / Integer.MAX_VALUE),
+					posy = (int) ((long) p.yfrac * height / Integer.MAX_VALUE);
+			if (map[posx][posy] == null)
+				map[posx][posy] = new ArrayList<>(1);
+			map[posx][posy].add(p);
 		}
 		return map;
 	}
