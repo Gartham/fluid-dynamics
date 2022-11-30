@@ -15,7 +15,9 @@ import javafx.stage.Stage;
 
 public class JFXRenderer extends Application {
 
-	private static final int IMAGE_WIDTH = 300, IMAGE_HEIGHT = IMAGE_WIDTH;
+	private static final int IMAGE_WIDTH = 300, IMAGE_HEIGHT = IMAGE_WIDTH, VIEWPORT_SCALE_FACTOR = 2;
+
+	// Shading density thresholds:
 
 	public static void main(String[] args) {
 		launch(args);
@@ -24,7 +26,10 @@ public class JFXRenderer extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		WritableImage img = new WritableImage(IMAGE_WIDTH, IMAGE_HEIGHT);
-		Scene s = new Scene(new Pane(new ImageView(img)));
+		ImageView view = new ImageView(img);
+		view.setFitWidth(IMAGE_WIDTH * VIEWPORT_SCALE_FACTOR);
+		view.setFitHeight(IMAGE_HEIGHT * VIEWPORT_SCALE_FACTOR);
+		Scene s = new Scene(new Pane(view));
 
 		Canvas c = new Canvas();
 		for (int i = 0; i < 100; i++)
