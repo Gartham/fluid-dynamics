@@ -1,5 +1,7 @@
 package com.gartham.fluidsim;
 
+import java.util.Arrays;
+
 public class FlowField implements Flowable {
 	private final Vector[][] grid;
 
@@ -59,6 +61,17 @@ public class FlowField implements Flowable {
 //		var vec3 = new Vector(2, -2).do
 //	}
 
+	private Vector grad2(int x, int y) {
+		Vector top = f(x, y + 1), tr = f(x + 1, y + 1), right = f(x + 1, y), br = f(x + 1, y - 1), bot = f(x, y - 1),
+				bl = f(x - 1, y - 1), left = f(x - 1, y), tl = f(x - 1, y + 1);
+		var xgrad = -4 * f(x, y).getX() - 2 * top.getX() + tr.getX() + tr.getY() + 2 * right.getX() + br.getX()
+				- br.getY() - 2 * bot.getX() + bl.getX() + bl.getY() + 2 * left.getX() + tl.getX() - tl.getY();
+		var ygrad = -4 * f(x, y).getY() + 2 * top.getY() + tr.getX() + tr.getY() - 2 * right.getY() + br.getY()
+				- br.getX() + 2 * bot.getY() + bl.getX() + bl.getY() - 2 * left.getY() + tl.getY() - tl.getX();
+
+		return new Vector(xgrad, ygrad);
+	}
+
 	/**
 	 * Returns the gradient of the vector-divergence of the vector at the given
 	 * cell.
@@ -68,12 +81,6 @@ public class FlowField implements Flowable {
 	 * @return
 	 */
 	private Vector grad(int x, int y) {
-		// Neg and pos y vectors. Summing all together will give the divergence vector
-		// at this coordinate.
-//		var nx = f(x - 1, y);
-//		var ny = f(x, y - 1);
-//		var px = f(x + 1, y);
-//		var py = f(x, y + 1);
 
 		// We want to calculate the gradient, so we need to take a 3x3 convolution over
 		// the cells around this cell. (This is necessary because the gradient
@@ -89,6 +96,7 @@ public class FlowField implements Flowable {
 		var hg = trpdiv.add(brpdiv).subtract(tlpdiv).subtract(blpdiv);
 		var vg = tlpdiv.add(trpdiv).subtract(blpdiv).subtract(brpdiv);
 
+//		return new Vector(hg.mag(), vg.mag());
 		return hg.add(vg);
 	}
 
@@ -127,16 +135,36 @@ public class FlowField implements Flowable {
 		if (x >= grid.length)
 			x %= grid.length;
 		if (y >= grid[0].length)
-			y %= grid.length;
+			y %= grid[0].length;
 
 		return grid[x][y];
 	}
 
 	@Override
 	public void flow(FlowField field) {
+		Vector[][] newGrid = new Vector[grid.length][grid[0].length];
 		for (int i = 0; i < grid.length; i++)
 			for (int j = 0; j < grid[0].length; j++)
-				grid[i][j] = grid[i][j].add(grad(i, j).times(.125));
+				newGrid[i][j] = grid[i][j].add(grad2(i, j).times(.125));
+		System.arraycopy(newGrid, 0, grid, 0, newGrid.length);
+	}
+
+	/**
+	 * Flows this field over itself <code>count</code> times.
+	 * 
+	 * @param count
+	 */
+	public void flow(int count) {
+		for (; count > 0; count--)
+			flow(this);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (var v : grid)
+			sb.append(Arrays.toString(v)).append('\n');
+		return sb.toString();
 	}
 
 }
