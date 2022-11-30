@@ -1,6 +1,9 @@
 package com.gartham.fluidsim;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class Canvas implements Flowable {
@@ -70,6 +73,39 @@ public class Canvas implements Flowable {
 			return color;
 		}
 
+	}
+
+	/**
+	 * <p>
+	 * Returns a grid, of size <code>width x height</code>, where each cell contains
+	 * a value representing the number of particles in its position.
+	 * </p>
+	 * <p>
+	 * This method divides up the {@link Canvas} into <code>width x height</code>
+	 * cells and then returns a 2D int array where each int in the array represents
+	 * the number of particles at that cell.
+	 * </p>
+	 * 
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public int[][] frequencymap(int width, int height) {
+		var map = new int[width][height];
+		for (Particle p : particles)
+			map[p.xfrac / width][p.yfrac / height]++;
+		return map;
+	}
+
+	public List<Particle>[][] particlemap(int width, int height) {
+		@SuppressWarnings("unchecked")
+		List<Particle>[][] map = (List<Particle>[][]) new List<?>[width][height];
+		for (Particle p : particles) {
+			if (map[p.xfrac / width][p.yfrac / height] == null)
+				map[p.xfrac / width][p.yfrac / height] = new ArrayList<>(1);
+			map[p.xfrac / width][p.yfrac / height].add(p);
+		}
+		return map;
 	}
 
 	public static void main(String[] args) throws InterruptedException {
