@@ -1,7 +1,16 @@
 package com.gartham.fluidsim;
 
-public class Canvas {
+import java.util.HashSet;
+import java.util.Set;
+
+public class Canvas implements Flowable {
+
+	private final Set<Particle> particles = new HashSet<>();
+
 	public class Particle implements Flowable {
+		{
+			particles.add(this);
+		}
 		private int color, xfrac, yfrac;
 
 		public Particle(int color, int xfrac, int yfrac) {
@@ -57,21 +66,41 @@ public class Canvas {
 			yfrac += unitYSteps;
 		}
 
+		public int getColor() {
+			return color;
+		}
+
 	}
 
 	public static void main(String[] args) throws InterruptedException {
 		Canvas can = new Canvas();
 		Particle particulate = can.new Particle(0xFF0000ff, 0, 0);
 
-		FlowField field = new FlowField(5, 5);
+		FlowField field = new FlowField(1000, 1000);
 		for (int i = 0; i < field.getWidth(); i++)
 			for (int j = 0; j < field.getHeight(); j++)
-				field.set(i, j, new Vector(i, j));
+				field.set(i, j, new Vector(i * 200, j * 15000));
 
 		while (true) {
 			Thread.sleep(1000);
 			particulate.flow(field);
 		}
+	}
+
+	/**
+	 * Gets the set of particles contained in this {@link Canvas}. The set is
+	 * modifiable, but only {@link Particle}s in this canvas should be added to it.
+	 * 
+	 * @return The {@link Set} of particles in this {@link Canvas}.
+	 */
+	public Set<Particle> getParticles() {
+		return particles;
+	}
+
+	@Override
+	public void flow(FlowField field) {
+		for (Particle p : particles)
+			p.flow(field);
 	}
 
 }
