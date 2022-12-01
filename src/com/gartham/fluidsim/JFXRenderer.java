@@ -35,32 +35,51 @@ public class JFXRenderer extends Application {
 		for (int i = 0; i < 100; i++)
 			c.new Particle(0xFF, (int) (Math.random() * Integer.MAX_VALUE), (int) (Math.random() * Integer.MAX_VALUE));
 
-		write(c, img.getPixelWriter());
+		FlowField field = new FlowField(50, 50);
+		for (int i = 0; i < 5; i++)
+			field.set((int) (Math.random() * 50), (int) (Math.random() * 50),
+					new Vector(Math.random() * 20 - 10, Math.random() * 20 - 10));
 
-//		Thread looper = new Thread(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				
-//			}
-//		});
+		write(c, img.getPixelWriter(), field);
+
+		Thread looper = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(17);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				c.flow(field);
+				write(c, img.getPixelWriter(), field);
+				field.flow(field);
+
+			}
+		});
 
 		primaryStage.setScene(s);
 		primaryStage.show();
 	}
 
-	public static void write(Canvas c, PixelWriter writer) {
+	public static void write(Canvas c, PixelWriter writer, FlowField field) {
+
+		for (int i = 0; i < field.getWidth(); i++)
+			for (int j = 0; j < field.getHeight(); j++) {
+				
+			}
+
 		var particlemap = c.particlemap(IMAGE_WIDTH, IMAGE_HEIGHT);
 		for (int i = 0; i < particlemap.length; i++)
 			for (int j = 0; j < particlemap[i].length; j++) {
 				List<Particle> list = particlemap[i][j];
 				if (list == null)
 					writer.setColor(i, j, Color.TRANSPARENT);
-				else {
+				else
 					writer.setColor(i, j, new Color((list.get(0).getColor() >>> 24) / 256d,
 							(list.get(0).getColor() >>> 16 & 0xff) / 256d, (list.get(0).getColor() >>> 8 & 0xff) / 256d,
 							((list.get(0).getColor() & 0xff)) / 256d));
-				}
 			}
 	}
 
